@@ -73,7 +73,7 @@ const STATUS_COLORS ={
 
 
 interface StatusProps{
-    statusColor: 'yellow' | 'red' | 'green' 
+    statusColor: keyof typeof STATUS_COLORS
 }
 
 
