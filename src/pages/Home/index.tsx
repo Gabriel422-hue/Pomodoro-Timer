@@ -3,6 +3,7 @@ import { CountdownContainer, FormContainer, HomeContainer, MinutesAmountInput, S
 import {useForm} from "react-hook-form";
 import { zodResolver} from "@hookform/resolvers/zod"
 import * as zod from "zod"
+import { useState } from "react";
 
 
 const newCyclesFromValidateSchema = zod.object({
@@ -18,22 +19,44 @@ type NewCycleFormData = zod.infer<typeof newCyclesFromValidateSchema>
 
 export function Home() {
 
-    const {register, handleSubmit, watch} = useForm<NewCycleFormData>({
+    interface Cycle {
+        id: string
+        task: string
+        minutesAmount: number
+    }
+
+    const [cycles, setCycles] = useState<Cycle[]>([])
+
+    const [activeCycleId, setActiveCycleId ] = useState<String | null>(null)
+
+    const {register, handleSubmit, watch, reset} = useForm<NewCycleFormData>({
         resolver: zodResolver(newCyclesFromValidateSchema),
         defaultValues: {
             task:" ",
             minutesAmount: 0,
     }
+
 })
 
     function handleCreateNewCylcle(data: NewCycleFormData) {
-        console.log(data)
+        
+        const id = String(new Date().getTime());
+
+        const newCycle: Cycle = {
+          id,
+          task: data.task,
+          minutesAmount:data.minutesAmount,
+        }
+
+        setCycles((state) => {return [...state, newCycle];})
+        setActiveCycleId(id)
+   
+        reset();
     }
 
-    const task = watch("task"); 
-    const isSubmitDisabled = !task
-    
+    const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
 
+    console.log(activeCycle)
     
     return (
         <HomeContainer>
@@ -41,7 +64,7 @@ export function Home() {
                <FormContainer>
                 <label htmlFor="task">Vou trabalhar em</label>
 
-                    <TaskInput 
+                     <TaskInput 
                         id="task" 
                         list="task-suggestions"
                         placeholder="Dê um nome para o seu projeto"
